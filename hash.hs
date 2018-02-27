@@ -16,23 +16,63 @@
 --      pad code with 0 until length of code is 6
 --      return code
 
+--  public function getCode($secret, $timeSlice = null)
+--  {
+--      if ($timeSlice === null) {
+--          $timeSlice = floor(time() / 30);
+--      }
+--      $secretkey = $this->_base32Decode($secret);
+--      // Pack time into binary string
+--      $time = chr(0).chr(0).chr(0).chr(0).pack('N*', $timeSlice);
+--      // Hash it with users secret key
+--      $hm = hash_hmac('SHA1', $time, $secretkey, true);
+--      // Use last nipple of result as index/offset
+--      $offset = ord(substr($hm, -1)) & 0x0F;
+--      // grab 4 bytes of the result
+--      $hashpart = substr($hm, $offset, 4);
+--      // Unpak binary value
+--      $value = unpack('N', $hashpart);
+--      $value = $value[1];
+--      // Only 32 bits
+--      $value = $value & 0x7FFFFFFF;
+--      $modulo = pow(10, $this->_codeLength);
+--      return str_pad($value % $modulo, $this->_codeLength, '0', STR_PAD_LEFT);
+--  }
 
+{-# LANGUAGE OverloadedStrings #-}
 
-import Crypto.Hash
-import Data.ByteString.Char8
+import Data.Binary as Bin
+import Data.ByteArray
+import Data.ByteString.Char8 as BS
 import Data.ByteString.Base32 as B32
 import System.Clock
 import Crypto.Hash.Algorithms
 import Crypto.MAC.HMAC
 
+--foo :: ByteArrayAccess a => a -> Int
+--foo s = Data.ByteArray.length s
+--
+--callFoo :: Int
+--callFoo = foo "asdf"
+
+callHMAC :: HMAC SHA1
+callHMAC = hmac (BS.pack "fff") (BS.pack "fff")
+
 main = do
   timespec <- getTime Realtime
-  print $ timeblock timespec
+  print $ hmacGetDigest $ callHMAC
+  --print $ hmacGetDigest $ xxx "asdfasfd" timespec
   --print $ digestToByteString $ sha1 $ pack "asdf"
 
-timeblock :: TimeSpec -> Integer
-timeblock timespec = quot timestamp 30000
-    where timestamp = toNanoSecs timespec
+--xxx :: String -> TimeSpec -> HMAC SHA1
+--xxx secret timespec = hmac secret (timeblock timespec)
+
+--timeblock :: TimeSpec -> ByteString
+--timeblock timespec = Bin.encode q
+--  where
+--    timestamp = toNanoSecs timespec
+--    q = quot timestamp 30000
+          
 --authenticate :: ByteString -> ByteString
 --authenticate secret = B32.decode(secret)
 --
