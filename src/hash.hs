@@ -49,7 +49,8 @@ import Data.ByteString.Char8 as BS
 import System.Clock
 import Crypto.Hash.Algorithms
 import Crypto.MAC.HMAC
-import Data.Array
+import Data.Array as A
+import Data.Vector as V
 import Data.Char
 
 --foo :: ByteArrayAccess a => a -> Int
@@ -78,49 +79,50 @@ main = do
 --    q = quot timestamp 30000
 
 
-table :: Array Char Integer 
-table = array ("A", "Z") [
-    ("A", 0),
-    ("B", 1),
-    ("C", 2),
-    ("D", 3),
-    ("E", 4),
-    ("F", 5),
-    ("G", 6),
-    ("H", 7),
-    ("I", 8),
-    ("J", 9),
-    ("K", 10),
-    ("L", 11),
-    ("M", 12),
-    ("N", 13),
-    ("O", 14),
-    ("P", 15),
-    ("Q", 16),
-    ("R", 17),
-    ("S", 18),
-    ("T", 19),
-    ("U", 20),
-    ("V", 21),
-    ("W", 22),
-    ("X", 23),
-    ("Y", 24),
-    ("Z", 25)]
+table :: Array Char Int 
+table = array ('A', 'Z') [
+    ('A', 0),
+    ('B', 1),
+    ('C', 2),
+    ('D', 3),
+    ('E', 4),
+    ('F', 5),
+    ('G', 6),
+    ('H', 7),
+    ('I', 8),
+    ('J', 9),
+    ('K', 10),
+    ('L', 11),
+    ('M', 12),
+    ('N', 13),
+    ('O', 14),
+    ('P', 15),
+    ('Q', 16),
+    ('R', 17),
+    ('S', 18),
+    ('T', 19),
+    ('U', 20),
+    ('V', 21),
+    ('W', 22),
+    ('X', 23),
+    ('Y', 24),
+    ('Z', 25)]
 
-convert32 :: Char -> Integer
+convert32 :: Char -> Maybe Int
 convert32 a
-    | isUpper(a) = table ! a
-    | isDigit(a) = (digitToInt a) + 24
+    | isUpper(a) = Just $ table A.! a
+    | isDigit(a) = Just $ (digitToInt a) + 24
+    | otherwise = Nothing
 
--- base32decode :: String -> Maybe ByteString
--- base32decode x = 
-          
+base32decode :: ByteString -> Maybe (Vector Int)
+base32decode bs = V.sequence $ BS.map convert32 bs
+
 authenticate :: ByteString -> ByteString
 authenticate secret = xxx (base32decode secret)
   where
     xxx (Left a) = (BS.pack a) -- need to handle error properly
     xxx (Right b) = b
---
+
 --sha1 :: ByteString -> Digest SHA1
 --sha1 = hash
 
