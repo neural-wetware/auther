@@ -64,6 +64,8 @@ executable auther
                      , binary
                      , memory
                      , clock
+                     , array
+                     , vector
   
   -- Directories containing source files.
   hs-source-dirs:      src

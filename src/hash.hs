@@ -115,7 +115,10 @@ convert32 a
     | otherwise = Nothing
 
 base32decode :: ByteString -> Maybe (Vector Int)
-base32decode bs = V.sequence $ BS.map convert32 bs
+base32decode bs = V.sequence $ V.fromList (Prelude.map convert32 $ BS.unpack bs)
+
+--base32decode :: ByteString -> Maybe (Vector Int)
+--base32decode bs = V.sequence $ BS.map convert32 bs
 
 authenticate :: ByteString -> ByteString
 authenticate secret = xxx (base32decode secret)
