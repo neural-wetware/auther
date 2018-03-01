@@ -107,13 +107,6 @@ table = array ("A", "Z") [
     ("Y", 24),
     ("Z", 25)]
 
---  (2, 26),
---  (3, 27),
---  (4, 28),
---  (5, 29),
---  (6, 30),
---  (7, 31)]
-
 convert32 :: Char -> Integer
 convert32 a
     | isUpper(a) = table ! a
