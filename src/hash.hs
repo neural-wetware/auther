@@ -46,11 +46,13 @@ module Main where
 import Data.Binary as Bin
 import Data.ByteArray
 import Data.ByteString.Char8 as BS
+import Data.ByteString as BS2
 import System.Clock
 import Crypto.Hash.Algorithms
 import Crypto.MAC.HMAC
 import Data.Array as A
-import Data.Vector as V
+import Control.Monad
+--import Data.Vector as V
 import Data.Char
 
 --foo :: ByteArrayAccess a => a -> Int
@@ -108,14 +110,14 @@ table = array ('A', 'Z') [
     ('Y', 24),
     ('Z', 25)]
 
-convert32 :: Char -> Maybe Int
+convert32 :: Char -> Maybe Word8
 convert32 a
-    | isUpper(a) = Just $ table A.! a
-    | isDigit(a) = Just $ (digitToInt a) + 24
+    | isUpper(a) = Just $ fromIntegral $ table A.! a
+    | isDigit(a) = Just $ fromIntegral $ (digitToInt a) + 24
     | otherwise = Nothing
 
-base32decode :: ByteString -> Maybe (Vector Int)
-base32decode bs = V.sequence $ V.fromList (Prelude.map convert32 $ BS.unpack bs)
+base32decode :: ByteString -> Maybe ByteString
+base32decode bs = fmap BS2.pack $ sequence (Prelude.map convert32 $ BS.unpack bs)
 
 --base32decode :: ByteString -> Maybe (Vector Int)
 --base32decode bs = V.sequence $ BS.map convert32 bs
