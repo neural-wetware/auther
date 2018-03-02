@@ -41,25 +41,17 @@ module Main where
 --      return str_pad($value % $modulo, $this->_codeLength, '0', STR_PAD_LEFT);
 --  }
 
---{-# LANGUAGE OverloadedStrings #-}
-
 import Data.Binary as Bin
 import Data.ByteArray
 import Data.ByteString.Char8 as BS
 import Data.ByteString as BS2
 import System.Clock
+import Crypto.Hash
 import Crypto.Hash.Algorithms
 import Crypto.MAC.HMAC
 import Data.Array as A
 import Control.Monad
---import Data.Vector as V
 import Data.Char
-
---foo :: ByteArrayAccess a => a -> Int
---foo s = Data.ByteArray.length s
---
---callFoo :: Int
---callFoo = foo "asdf"
 
 callHMAC :: ByteString -> HMAC SHA1
 callHMAC secret = hmac secret (BS.pack "fff")
@@ -67,19 +59,21 @@ callHMAC secret = hmac secret (BS.pack "fff")
 main :: IO ()
 main = do
   timespec <- getTime Realtime
-  print $ hmacGetDigest $ callHMAC (authenticate (BS.pack "secret"))
+  print $ doIt
   --print $ hmacGetDigest $ xxx "asdfasfd" timespec
   --print $ digestToByteString $ sha1 $ pack "asdf"
 
---xxx :: String -> TimeSpec -> HMAC SHA1
---xxx secret timespec = hmac secret (timeblock timespec)
+doIt :: String
+doIt = maybe "error" hm secret
+  where 
+    secret = base32decode (BS.pack "NBSWY3DPEB3W64TM")
+    hm = show . hmacGetDigest . callHMAC
 
 --timeblock :: TimeSpec -> ByteString
 --timeblock timespec = Bin.encode q
 --  where
 --    timestamp = toNanoSecs timespec
 --    q = quot timestamp 30000
-
 
 table :: Array Char Int 
 table = array ('A', 'Z') [
@@ -118,18 +112,6 @@ convert32 a
 
 base32decode :: ByteString -> Maybe ByteString
 base32decode bs = fmap BS2.pack $ sequence (Prelude.map convert32 $ BS.unpack bs)
-
---base32decode :: ByteString -> Maybe (Vector Int)
---base32decode bs = V.sequence $ BS.map convert32 bs
-
-authenticate :: ByteString -> ByteString
-authenticate secret = xxx (base32decode secret)
-  where
-    xxx (Left a) = (BS.pack a) -- need to handle error properly
-    xxx (Right b) = b
-
---sha1 :: ByteString -> Digest SHA1
---sha1 = hash
 
 --  function GoogleAuthenticatorCode(string secret)
 --      key := base32decode(secret)
