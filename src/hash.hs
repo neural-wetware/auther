@@ -52,6 +52,8 @@ import Crypto.MAC.HMAC
 import Data.Array as A
 import Control.Monad
 import Data.Char
+import Data.Maybe
+import System.Posix.Env.ByteString
 
 callHMAC :: ByteString -> HMAC SHA1
 callHMAC secret = hmac secret (BS.pack "fff")
@@ -59,14 +61,15 @@ callHMAC secret = hmac secret (BS.pack "fff")
 main :: IO ()
 main = do
   timespec <- getTime Realtime
-  print $ doIt
+  (secret:_) <- getArgs
+  print $ doIt secret
   --print $ hmacGetDigest $ xxx "asdfasfd" timespec
   --print $ digestToByteString $ sha1 $ pack "asdf"
 
-doIt :: String
-doIt = maybe "error" hm secret
+doIt :: ByteString -> String
+doIt secret = maybe "error" hm s -- see https://wiki.haskell.org/Handling_errors_in_Haskell
   where 
-    secret = base32decode (BS.pack "NBSWY3DPEB3W64TM")
+    s = base32decode secret
     hm = show . hmacGetDigest . callHMAC
 
 --timeblock :: TimeSpec -> ByteString
