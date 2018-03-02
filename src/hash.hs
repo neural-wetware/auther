@@ -44,6 +44,7 @@ module Main where
 import Data.Binary as Bin
 import Data.ByteArray
 import Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Lazy as LBS
 import Data.ByteString as BS2
 import System.Clock
 import Crypto.Hash
@@ -55,28 +56,27 @@ import Data.Char
 import Data.Maybe
 import System.Posix.Env.ByteString
 
-callHMAC :: ByteString -> HMAC SHA1
-callHMAC secret = hmac secret (BS.pack "fff")
+callHMAC :: ByteString -> ByteString-> HMAC SHA1
+callHMAC secret message = hmac secret message
 
 main :: IO ()
 main = do
   timespec <- getTime Realtime
   (secret:_) <- getArgs
-  print $ doIt secret
-  --print $ hmacGetDigest $ xxx "asdfasfd" timespec
-  --print $ digestToByteString $ sha1 $ pack "asdf"
+  print $ doIt timespec secret
 
-doIt :: ByteString -> String
-doIt secret = maybe "error" hm s -- see https://wiki.haskell.org/Handling_errors_in_Haskell
+doIt :: TimeSpec -> ByteString -> String
+doIt timespec secret = maybe "error" hm s -- see https://wiki.haskell.org/Handling_errors_in_Haskell
   where 
+    t = timeblock timespec
     s = base32decode secret
-    hm = show . hmacGetDigest . callHMAC
+    hm x = show $ hmacGetDigest $ (callHMAC x t)
 
---timeblock :: TimeSpec -> ByteString
---timeblock timespec = Bin.encode q
---  where
---    timestamp = toNanoSecs timespec
---    q = quot timestamp 30000
+timeblock :: TimeSpec -> ByteString
+timeblock timespec = LBS.toStrict $ Bin.encode q
+  where
+    timestamp = toNanoSecs timespec
+    q = quot timestamp 30000
 
 table :: Array Char Int 
 table = array ('A', 'Z') [
