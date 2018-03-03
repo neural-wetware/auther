@@ -54,16 +54,28 @@ import Data.Array as A
 import Control.Monad
 import Data.Char
 import Data.Maybe
+import Data.Bits
 import System.Posix.Env.ByteString
-
-callHMAC :: ByteString -> ByteString-> HMAC SHA1
-callHMAC secret message = hmac secret message
 
 main :: IO ()
 main = do
   timespec <- getTime Realtime
   (secret:_) <- getArgs
   print $ doIt timespec secret
+
+lastNibble :: ByteString -> Int
+lastNibble bs = fromEnum $ end .&. mask
+  where
+    end = fromIntegral $ (BS2.last bs)
+    mask = toEnum 16 :: Word8
+
+subDigest :: ByteString -> ByteString
+subDigest dig = BS.take 4 $ BS.drop offset dig
+  where
+    offset = lastNibble dig
+
+callHMAC :: ByteString -> ByteString-> HMAC SHA1
+callHMAC secret message = hmac secret message
 
 doIt :: TimeSpec -> ByteString -> String
 doIt timespec secret = maybe "error" hm s -- see https://wiki.haskell.org/Handling_errors_in_Haskell
@@ -76,7 +88,7 @@ timeblock :: TimeSpec -> ByteString
 timeblock timespec = LBS.toStrict $ Bin.encode q
   where
     timestamp = toNanoSecs timespec
-    q = quot timestamp 30000
+    q = quot timestamp 30000000000
 
 table :: Array Char Int 
 table = array ('A', 'Z') [
