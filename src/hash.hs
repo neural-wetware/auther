@@ -42,6 +42,7 @@ module Main where
 --  }
 
 import Data.Binary as Bin
+import Data.Binary.Get
 import Data.ByteArray
 import Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy as LBS
@@ -62,6 +63,24 @@ main = do
   timespec <- getTime Realtime
   (secret:_) <- getArgs
   print $ doIt timespec secret
+
+--generateCode :: TimeSpec -> ByteString -> ByteString
+--generateCode timespec secret = (word32ToDecimal . conv32) s
+--  where
+--    h = doIt timespec secret
+--    s = subDigest h
+
+word32ToDecimal :: Word32 -> LBS.ByteString
+word32ToDecimal word32 = Bin.encode $ mm word32
+
+mm :: Word32 -> Int
+mm word32 = fromIntegral $ mod word32 1000000
+
+conv32 :: LBS.ByteString -> Word32
+conv32 bs = word .&. mask
+  where
+    word = runGet getWord32be bs
+    mask = toEnum 2147483647 :: Word32
 
 lastNibble :: ByteString -> Int
 lastNibble bs = fromEnum $ end .&. mask
@@ -91,7 +110,8 @@ timeblock timespec = LBS.toStrict $ Bin.encode q
     q = quot timestamp 30000000000
 
 table :: Array Char Int 
-table = array ('A', 'Z') [
+table = array
+    ('A', 'Z') [
     ('A', 0),
     ('B', 1),
     ('C', 2),
