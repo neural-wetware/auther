@@ -76,11 +76,14 @@ word32ToDecimal word32 = Bin.encode $ mm word32
 mm :: Word32 -> Int
 mm word32 = fromIntegral $ mod word32 1000000
 
-conv32 :: LBS.ByteString -> Word32
+conv32 :: ByteString -> Word32
 conv32 bs = word .&. mask
   where
-    word = runGet getWord32be bs
+    word = extractDecoder $ pushChunk (runGetIncremental getWord32be) bs
     mask = toEnum 2147483647 :: Word32
+
+extractDecoder :: Decoder Word32 -> Word32
+extractDecoder (Done _ _ a) = a  -- TODO handle failure cases
 
 lastNibble :: ByteString -> Int
 lastNibble bs = fromEnum $ end .&. mask
