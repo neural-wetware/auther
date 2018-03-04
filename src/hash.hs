@@ -62,13 +62,13 @@ main :: IO ()
 main = do
   timespec <- getTime Realtime
   (secret:_) <- getArgs
-  print $ doIt timespec secret
+  print $ generateCode timespec secret
 
---generateCode :: TimeSpec -> ByteString -> ByteString
---generateCode timespec secret = (word32ToDecimal . conv32) s
---  where
---    h = doIt timespec secret
---    s = subDigest h
+generateCode :: TimeSpec -> ByteString -> LBS.ByteString
+generateCode timespec secret = (word32ToDecimal . conv32) s
+  where
+    h = doIt timespec secret
+    s = subDigest h
 
 word32ToDecimal :: Word32 -> LBS.ByteString
 word32ToDecimal word32 = Bin.encode $ mm word32
@@ -99,8 +99,8 @@ subDigest dig = BS.take 4 $ BS.drop offset dig
 callHMAC :: ByteString -> ByteString-> HMAC SHA1
 callHMAC secret message = hmac secret message
 
-doIt :: TimeSpec -> ByteString -> String
-doIt timespec secret = maybe "error" hm s -- see https://wiki.haskell.org/Handling_errors_in_Haskell
+doIt :: TimeSpec -> ByteString -> ByteString
+doIt timespec secret = BS.pack $ maybe "error" hm s -- see https://wiki.haskell.org/Handling_errors_in_Haskell
   where 
     t = timeblock timespec
     s = base32decode secret
