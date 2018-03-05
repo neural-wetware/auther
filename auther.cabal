@@ -44,7 +44,7 @@ cabal-version:       >=1.10
 
 executable auther
   -- .hs or .lhs file containing the Main module.
-  main-is:             hash.hs
+  main-is:             Auther.hs
   
   -- Modules included in this executable, other than Main.
   --other-modules:       base32decode
@@ -72,10 +72,10 @@ executable auther
   default-language:    Haskell2010
 
 -- husk.cabal
-test-suite hspec
-    build-depends:    base, hspec
-    default-language: Haskell2010
- -- adding `src` cause we can't test the executable
-    hs-source-dirs:   test, src
-    main-is:          Spec.hs
-    type:             exitcode-stdio-1.0
+--test-suite hspec
+--    build-depends:    hspec, base, bytestring, word8
+--    default-language: Haskell2010
+-- -- adding `src` cause we can't test the executable
+--    hs-source-dirs:   test, src
+--    main-is:          AutherSpec.hs
+--    type:             exitcode-stdio-1.0

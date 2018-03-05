@@ -109,15 +109,3 @@ timeblock timespec = LBS.toStrict $ Bin.encode q
   where
     timestamp = toNanoSecs timespec
     q = quot timestamp 30000000000
-
---  function GoogleAuthenticatorCode(string secret)
---      key := base32decode(secret)
---      message := floor(current Unix time / 30)
---      hash := HMAC-SHA1(key, message)
---      offset := last nibble of hash
---      truncatedHash := hash[offset..offset+3]  //4 bytes starting at the offset
---      Set the first bit of truncatedHash to zero  //remove the most significant bit
---      code := truncatedHash mod 1000000
---      pad code with 0 until length of code is 6
---      return code
-
