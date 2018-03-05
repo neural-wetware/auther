@@ -57,6 +57,7 @@ import Data.Char
 import Data.Maybe
 import Data.Bits
 import System.Posix.Env.ByteString
+import Base32Decode
 
 main :: IO ()
 main = do
@@ -96,60 +97,18 @@ subDigest dig = BS.take 4 $ BS.drop offset dig
   where
     offset = lastNibble dig
 
-callHMAC :: ByteString -> ByteString-> HMAC SHA1
-callHMAC secret message = hmac secret message
-
 doIt :: TimeSpec -> ByteString -> ByteString
 doIt timespec secret = BS.pack $ maybe "error" hm s -- see https://wiki.haskell.org/Handling_errors_in_Haskell
   where 
     t = timeblock timespec
     s = base32decode secret
-    hm x = show $ hmacGetDigest $ (callHMAC x t)
+    hm x = show $ hmacGetDigest $ (hmac x t :: HMAC SHA1)
 
 timeblock :: TimeSpec -> ByteString
 timeblock timespec = LBS.toStrict $ Bin.encode q
   where
     timestamp = toNanoSecs timespec
     q = quot timestamp 30000000000
-
-table :: Array Char Int 
-table = array
-    ('A', 'Z') [
-    ('A', 0),
-    ('B', 1),
-    ('C', 2),
-    ('D', 3),
-    ('E', 4),
-    ('F', 5),
-    ('G', 6),
-    ('H', 7),
-    ('I', 8),
-    ('J', 9),
-    ('K', 10),
-    ('L', 11),
-    ('M', 12),
-    ('N', 13),
-    ('O', 14),
-    ('P', 15),
-    ('Q', 16),
-    ('R', 17),
-    ('S', 18),
-    ('T', 19),
-    ('U', 20),
-    ('V', 21),
-    ('W', 22),
-    ('X', 23),
-    ('Y', 24),
-    ('Z', 25)]
-
-convert32 :: Char -> Maybe Word8
-convert32 a
-    | isUpper(a) = Just $ fromIntegral $ table A.! a
-    | isDigit(a) = Just $ fromIntegral $ (digitToInt a) + 24
-    | otherwise = Nothing
-
-base32decode :: ByteString -> Maybe ByteString
-base32decode bs = fmap BS2.pack $ sequence (Prelude.map convert32 $ BS.unpack bs)
 
 --  function GoogleAuthenticatorCode(string secret)
 --      key := base32decode(secret)

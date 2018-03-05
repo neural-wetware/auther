@@ -38,10 +38,6 @@ maintainer:          dlagos@formbay.com.au
 
 build-type:          Simple
 
--- Extra files to be distributed with the package, such as examples or a 
--- README.
-extra-source-files:  ChangeLog.md
-
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
 
@@ -51,7 +47,7 @@ executable auther
   main-is:             hash.hs
   
   -- Modules included in this executable, other than Main.
-  -- other-modules:       
+  --other-modules:       base32decode
   
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
@@ -67,9 +63,19 @@ executable auther
                      , array
                      , vector
                      , unix
+                     , word8
   
   -- Directories containing source files.
   hs-source-dirs:      src
   
   -- Base language which the package is written in.
   default-language:    Haskell2010
+
+-- husk.cabal
+test-suite hspec
+    build-depends:    base, hspec
+    default-language: Haskell2010
+ -- adding `src` cause we can't test the executable
+    hs-source-dirs:   test, src
+    main-is:          Spec.hs
+    type:             exitcode-stdio-1.0
