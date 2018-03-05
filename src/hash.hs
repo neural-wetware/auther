@@ -65,14 +65,14 @@ main = do
   (secret:_) <- getArgs
   print $ generateCode timespec secret
 
-generateCode :: TimeSpec -> ByteString -> LBS.ByteString
+generateCode :: TimeSpec -> ByteString -> ByteString
 generateCode timespec secret = (word32ToDecimal . conv32) s
   where
     h = doIt timespec secret
     s = subDigest h
 
-word32ToDecimal :: Word32 -> LBS.ByteString
-word32ToDecimal word32 = Bin.encode $ mm word32
+word32ToDecimal :: Word32 -> ByteString
+word32ToDecimal word32 = BS.pack $ show $ mm word32
 
 mm :: Word32 -> Int
 mm word32 = fromIntegral $ mod word32 1000000
