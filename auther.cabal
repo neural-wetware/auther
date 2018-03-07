@@ -47,11 +47,11 @@ executable auther
   main-is:             Auther.hs
   
   -- Modules included in this executable, other than Main.
-  --other-modules:       base32decode
+  --other-modules:       Base32Decode
   
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
-  
+
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.9 && <4.10
                      , bytestring
@@ -72,10 +72,17 @@ executable auther
   default-language:    Haskell2010
 
 -- husk.cabal
---test-suite hspec
---    build-depends:    hspec, base, bytestring, word8
---    default-language: Haskell2010
--- -- adding `src` cause we can't test the executable
---    hs-source-dirs:   test, src
---    main-is:          AutherSpec.hs
---    type:             exitcode-stdio-1.0
+test-suite hspec
+    build-depends:    hspec, base, bytestring, word8, auther
+    default-language: Haskell2010
+    hs-source-dirs:   test
+    main-is:          AutherSpec.hs
+    type:             exitcode-stdio-1.0
+--
+library
+  hs-source-dirs:      src
+ --only adding Internal for tests. TODO find proper way!
+  exposed-modules:     Base32Decode, Base32Decode.Internal
+  build-depends:       base >=4.9 && <4.10
+                     , base, bytestring, word8
+  default-language:    Haskell2010
