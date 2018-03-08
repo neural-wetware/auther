@@ -57,7 +57,6 @@ import Data.Char
 import Data.Maybe
 import Data.Bits
 import System.Posix.Env.ByteString
-import Base32Decode
 
 main :: IO ()
 main = do
@@ -97,12 +96,16 @@ subDigest dig = BS.take 4 $ BS.drop offset dig
   where
     offset = lastNibble dig
 
-doIt :: TimeSpec -> ByteString -> ByteString
-doIt timespec secret = BS.pack $ maybe "error" hm s -- see https://wiki.haskell.org/Handling_errors_in_Haskell
+doIt :: TimeSpec -> ByteString -> BS.ByteString
+doIt timespec secret = BS.pack $ hm s
   where 
     t = timeblock timespec
-    s = base32decode secret
+    s = xxx $ decode (LBS.fromStrict secret)
     hm x = show $ hmacGetDigest $ (hmac x t :: HMAC SHA1)
+
+xxx :: Either String ByteString -> ByteString
+--xxx (Left a) = BS.pack "error"
+xxx (Right a) = a
 
 timeblock :: TimeSpec -> ByteString
 timeblock timespec = LBS.toStrict $ Bin.encode q
