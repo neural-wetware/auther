@@ -22,19 +22,13 @@ spec = do
 --      prop "equals the unit value" $
 --          \ x -> husk == x
 
---  describe "convert32" $ do
---      it "decodes base32 char" $ do
---          (fromJust $ convert32 _A) `shouldBe` (0)
---          (fromJust $ convert32 _a) `shouldBe` (0)
---          (fromJust $ convert32 _7) `shouldBe` (31)
---          (fromJust $ convert32 _2) `shouldBe` (26)
+    describe "subDigest" $ do
+        it "gives us a 4 byte substring based on last nibble offset" $ do
+            (subDigest $ pack "hello there beautiful worldM") `shouldBe` (pack "eaut")
 
---  describe "merge" $ do
---      it "combines 8x5-bits to 40-bits" $ do
---          (merge _A _A _E _3 _A _A _N _B) `shouldBe` (Just $ fromIntegral 5963985)
---          --010110110000000011010001
---          --(merge _A _A) `shouldBe` (Just $ fromIntegral 0)
---          --(merge _N _B) `shouldBe` (Just $ fromIntegral 209)
+    describe "lastNibble" $ do
+        it "gets last nibble of bytestring" $ do
+            (lastNibble $ pack "asdf") `shouldBe` (6)
 
 --  describe "convertAll" $ do
 --      it "combines 2 nibles" $ do

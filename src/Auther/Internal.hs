@@ -42,7 +42,7 @@ lastNibble :: ByteString -> Int
 lastNibble bs = fromEnum $ end .&. mask
   where
     end = fromIntegral $ (BS2.last bs)
-    mask = toEnum 16 :: Word8
+    mask = toEnum 15 :: Word8
 
 subDigest :: ByteString -> ByteString
 subDigest dig = BS.take 4 $ BS.drop offset dig
