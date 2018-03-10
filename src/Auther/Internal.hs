@@ -1,7 +1,7 @@
 module Auther.Internal where
 
 import Data.Binary as Bin
-import Data.Binary.Get
+import Data.Binary.Get -- TODO use lazy equivalent? cereal?
 import Data.ByteArray
 import Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy as LBS
@@ -19,10 +19,11 @@ import Data.Bits
 import System.Posix.Env.ByteString
 
 generateCode :: TimeSpec -> ByteString -> ByteString
-generateCode timespec secret = (word32ToDecimal . conv32) s
+generateCode timespec secret = (word32ToDecimal . mask31) word
   where
     h = doIt timespec secret
     s = subDigest h
+    word = extractDecoder $ pushChunk (runGetIncremental getWord32be) s
 
 word32ToDecimal :: Word32 -> ByteString
 word32ToDecimal word32 = (padL 6) . BS.pack . show $ mm word32
@@ -37,10 +38,10 @@ padL n s
   where
     padding = (BS2.replicate (n - BS2.length s) _0)
 
-conv32 :: ByteString -> Word32
-conv32 bs = word .&. mask
+mask31 :: Word32 -> Word32
+mask31 word = word .&. mask
   where
-    word = extractDecoder $ pushChunk (runGetIncremental getWord32be) bs
+    --word = extractDecoder $ pushChunk (runGetIncremental getWord32be) bs
     mask = toEnum 2147483647 :: Word32
 
 extractDecoder :: Decoder Word32 -> Word32

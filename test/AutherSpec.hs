@@ -6,7 +6,10 @@ import Auther.Internal
 import Data.ByteString.Char8
 import qualified Data.ByteString as BSW
 import Data.Word8
+import Data.Word
 import Data.Maybe
+import Data.Binary.Get -- TODO use lazy equivalent? cereal?
+import Data.ByteString.Conversion
 
 main :: IO ()
 main = hspec spec
@@ -42,6 +45,6 @@ spec = do
         it "adds leading zeros" $ do
             (padL 6 (pack "355")) `shouldBe` (pack "000355")
 
-    describe "conv32" $ do
-        it "converts 4 bytes to 31bit word32" $ do
-            (padL 6 (pack "355")) `shouldBe` (pack "000355")
+    describe "mask31" $ do
+        it "sets first bit to zero" $ do
+            (conv32 (toEnum 3147483648)) `shouldBe` (toEnum 1000000000)
