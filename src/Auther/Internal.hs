@@ -14,6 +14,7 @@ import Data.Array as A
 import Control.Monad
 import Data.Char
 import Data.Maybe
+import Data.Word8
 import Data.Bits
 import System.Posix.Env.ByteString
 
@@ -24,10 +25,17 @@ generateCode timespec secret = (word32ToDecimal . conv32) s
     s = subDigest h
 
 word32ToDecimal :: Word32 -> ByteString
-word32ToDecimal word32 = BS.pack $ show $ mm word32
+word32ToDecimal word32 = (padL 6) . BS.pack . show $ mm word32
 
 mm :: Word32 -> Int
 mm word32 = fromIntegral $ mod word32 1000000
+
+padL :: Int -> ByteString -> ByteString
+padL n s
+    | BS2.length s < n  = BS2.concat [padding, s]
+    | otherwise        = s
+  where
+    padding = (BS2.replicate (n - BS2.length s) _0)
 
 conv32 :: ByteString -> Word32
 conv32 bs = word .&. mask

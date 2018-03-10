@@ -30,9 +30,18 @@ spec = do
         it "gets last nibble of bytestring" $ do
             (lastNibble $ pack "asdf") `shouldBe` (6)
 
---  describe "convertAll" $ do
---      it "combines 2 nibles" $ do
---          --(convertAll [_E, _3]) `shouldBe` ([Just $ fromIntegral 91])
---          --(convertAll [_E, _3, _4]) `shouldBe` ([Just $ fromIntegral 91, Nothing])
---          --(convertAll [_N, _B, _S, _W]) `shouldBe` (Prelude.map Just (BSW.unpack $ pack "he"))
---          (convertAll (BSW.unpack $ pack "NBSWY3DPEB3W64TM")) `shouldBe` (Prelude.map Just (BSW.unpack $ pack "hello world"))
+    describe "word32ToDecimal" $ do
+        it "converts 32bit word to decimal string, mod 1000000" $ do
+            (word32ToDecimal (fromIntegral 40010108)) `shouldBe` (pack "010108")
+
+    describe "mm" $ do
+        it "converts 32bit word to integer" $ do
+            (mm (fromIntegral 3000000011)) `shouldBe` 11
+
+    describe "pasL" $ do
+        it "adds leading zeros" $ do
+            (padL 6 (pack "355")) `shouldBe` (pack "000355")
+
+    describe "conv32" $ do
+        it "converts 4 bytes to 31bit word32" $ do
+            (padL 6 (pack "355")) `shouldBe` (pack "000355")
