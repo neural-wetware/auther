@@ -3,12 +3,16 @@ module Main (main, spec) where
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Auther.Internal
+import System.Clock
 import Data.ByteString.Char8
 import qualified Data.ByteString as BSW
+import qualified Data.ByteString.Lazy as LBS
+import qualified Data.ByteString.Lazy.Char8 as LBSC
 import Data.Word8
 import Data.Word
 import Data.Maybe
 import Data.Binary.Get -- TODO use lazy equivalent? cereal?
+import Data.Binary (encode)
 import Data.ByteString.Conversion
 
 main :: IO ()
@@ -27,7 +31,7 @@ spec = do
 
     describe "subDigest" $ do
         it "gives us a 4 byte substring based on last nibble offset" $ do
-            (subDigest $ pack "hello there beautiful worldM") `shouldBe` (pack "eaut")
+            (subDigest $ pack "hello there beautiful worldN") `shouldBe` (pack "auti")
 
     describe "lastNibble" $ do
         it "gets last nibble of bytestring" $ do
@@ -41,10 +45,26 @@ spec = do
         it "converts 32bit word to integer" $ do
             (mm (fromIntegral 3000000011)) `shouldBe` 11
 
-    describe "pasL" $ do
+    describe "padL" $ do
         it "adds leading zeros" $ do
-            (padL 6 (pack "355")) `shouldBe` (pack "000355")
+            (padL _0 6 (pack "355")) `shouldBe` (pack "000355")
 
     describe "mask31" $ do
         it "sets first bit to zero" $ do
-            (conv32 (toEnum 3147483648)) `shouldBe` (toEnum 1000000000)
+            (mask31 (toEnum 3147483648)) `shouldBe` (toEnum 1000000000)
+
+    describe "makeWord" $ do
+        it "converts 4 byte ByteString to Word32" $ do
+            (makeWord (pack "aaaa")) `shouldBe` (toEnum 1633771873 :: Word32)
+
+    describe "test runGet" $ do
+        it "sets first bit to zero" $ do
+            (runGet getWord32be (LBSC.pack "aaaa")) `shouldBe` (toEnum 1633771873 :: Word32)
+
+    describe "doIt" $ do
+        it "does it" $ do
+            (doIt (fromNanoSecs 1633771873000000000) (pack "NBSWY3DPEB3W64TMMQ")) `shouldBe` (pack "ffff")
+
+    describe "timeblock" $ do
+        it "does it" $ do
+            (timeblock (fromNanoSecs (34359738360 * 1000000000))) `shouldBe` (pack "\0\0\0\0DDDD")
