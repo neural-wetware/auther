@@ -92,6 +92,7 @@ library
                      , binary
                      , memory
                      , clock
+                     , byteable
                      , array
                      , vector
                      , unix

@@ -19,6 +19,7 @@ import Data.Word8
 import Data.Bits
 import System.Posix.Env.ByteString
 import Data.ByteString.Conversion
+import qualified Codec.Binary.Base32 as B32 (decode)
 
 generateCode :: TimeSpec -> ByteString -> ByteString
 generateCode timespec secret = (word32ToDecimal . mask31) word
@@ -63,15 +64,15 @@ subDigest dig = BS.take 4 $ BS.drop offset dig
     offset = lastNibble dig
 
 doIt :: TimeSpec -> ByteString -> BS.ByteString
-doIt timespec secret = BS.pack $ hm
+doIt timespec secret = BS2.pack $ Data.ByteArray.unpack hm
   where 
-    t = timeblock timespec
-    s = xxx $ decode (LBS.fromStrict secret)
-    hm = show $ hmacGetDigest $ (hmac s t :: HMAC SHA1)
+    key = xxx $ B32.decode (BS.unpack secret)
+    message = timeblock timespec
+    hm = hmac key message :: HMAC SHA1
 
-xxx :: Either String ByteString -> ByteString
+xxx :: Maybe [Word8] -> ByteString
 --xxx (Left a) = BS.pack "error"
-xxx (Right a) = a
+xxx (Just a) = BS2.pack a
 
 timeblock :: TimeSpec -> ByteString
 timeblock timespec = padL (toEnum 0) 8 $ LBS.toStrict $ Bin.encode q
