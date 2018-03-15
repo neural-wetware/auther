@@ -51,8 +51,12 @@ spec = do
 
     describe "doIt" $ do
         it "does it" $ do
-            (doIt (fromNanoSecs 1633771873000000000) (pack "NBSWY3DPEB3W64TMMQ")) `shouldBe` (BSW.pack [0x07, 0xb2, 0x88, 0xa6, 0x39, 0x5f, 0x3f, 0x9a, 0xfc, 0xa6, 0x0c, 0x2d, 0x9a, 0xc7, 0x8b, 0xca, 0xf5, 0x73, 0x31, 0x2f])
+            (doIt (fromNanoSecs 1633771873000000000) (pack "hello world")) `shouldBe` (BSW.pack [0x07, 0xb2, 0x88, 0xa6, 0x39, 0x5f, 0x3f, 0x9a, 0xfc, 0xa6, 0x0c, 0x2d, 0x9a, 0xc7, 0x8b, 0xca, 0xf5, 0x73, 0x31, 0x2f])
 
     describe "timeblock" $ do
         it "does it" $ do
             (timeblock (fromNanoSecs (34359738360000000055))) `shouldBe` (pack "\0\0\0\0DDDD")
+
+    describe "secretToBin" $ do
+        it "does it" $ do
+            (secretToBin $ pack "NBSWY3DPEB3W64TMMQ") `shouldBe` (Just $ pack "hello world")

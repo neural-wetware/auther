@@ -24,10 +24,10 @@ import qualified Codec.Binary.Base32 as B32 (decode)
 generateCode :: TimeSpec -> ByteString -> ByteString
 generateCode timespec secret = (word32ToDecimal . mask31) word
   where
-    h = doIt timespec $ upperCase secret
+    h = doIt timespec bsec
+    bsec = fromJust $ secretToBin secret -- pass maybe up stack from here
     s = subDigest h
     word = makeWord s
-    upperCase = BS2.map Data.Word8.toUpper
 
 makeWord :: ByteString -> Word32
 makeWord s = runGet getWord32be (fromJust $ fromByteString s) :: Word32
@@ -64,16 +64,23 @@ subDigest dig = BS.take 4 $ BS.drop offset dig
 doIt :: TimeSpec -> ByteString -> BS.ByteString
 doIt timespec secret = BS2.pack $ Data.ByteArray.unpack hm
   where 
-    key = xxx $ B32.decode (BS.unpack secret)
     message = timeblock timespec
-    hm = hmac key message :: HMAC SHA1
+    hm = hmac secret message :: HMAC SHA1
 
-xxx :: Maybe [Word8] -> ByteString
---xxx (Left a) = BS.pack "error"
-xxx (Just a) = BS2.pack a
+secretToBin :: ByteString -> Maybe ByteString
+secretToBin secret = fmap BS2.pack $ B32.decode (BS.unpack (upperCase secret))
+  where
+    upperCase = BS2.map Data.Word8.toUpper
 
 timeblock :: TimeSpec -> ByteString
 timeblock timespec = padL (toEnum 0) 8 $ LBS.toStrict $ Bin.encode q
   where
     timestamp = toNanoSecs timespec
     q = quot timestamp 30000000000
+
+-- 2fa apps vary on
+-- * hash algorithm
+-- * reset window
+-- * code length
+-- * secret length?
+-- install Sophos Authenticator and copy options?
