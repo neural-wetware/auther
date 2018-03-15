@@ -14,21 +14,13 @@ import Data.Maybe
 import Data.Binary.Get -- TODO use lazy equivalent? cereal?
 import Data.Binary (encode)
 import Data.ByteString.Conversion
+import qualified Codec.Binary.Base32 as B32 (decode)
 
 main :: IO ()
 main = hspec spec
 
 spec :: Spec
 spec = do
-    describe "base32decode" $ do
-        it "decodes base32 string" $ do
-            pendingWith "fix base32decode bug"
-            --(base32decode $ pack "NBSWY3DPEB3W64TMMQ") `shouldBe` (Just $ pack "hello world")
-
--- this can be done by sending random secrets!?
---      prop "equals the unit value" $
---          \ x -> husk == x
-
     describe "subDigest" $ do
         it "gives us a 4 byte substring based on last nibble offset" $ do
             (subDigest $ pack "hello there beautiful worldN") `shouldBe` (pack "auti")
@@ -57,16 +49,9 @@ spec = do
         it "converts 4 byte ByteString to Word32" $ do
             (makeWord (pack "aaaa")) `shouldBe` (toEnum 1633771873 :: Word32)
 
-    describe "test runGet" $ do
-        it "sets first bit to zero" $ do
-            (runGet getWord32be (LBSC.pack "aaaa")) `shouldBe` (toEnum 1633771873 :: Word32)
-
     describe "doIt" $ do
         it "does it" $ do
             (doIt (fromNanoSecs 1633771873000000000) (pack "NBSWY3DPEB3W64TMMQ")) `shouldBe` (BSW.pack [0x07, 0xb2, 0x88, 0xa6, 0x39, 0x5f, 0x3f, 0x9a, 0xfc, 0xa6, 0x0c, 0x2d, 0x9a, 0xc7, 0x8b, 0xca, 0xf5, 0x73, 0x31, 0x2f])
-
-
-
 
     describe "timeblock" $ do
         it "does it" $ do

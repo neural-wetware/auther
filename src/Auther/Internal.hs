@@ -24,9 +24,10 @@ import qualified Codec.Binary.Base32 as B32 (decode)
 generateCode :: TimeSpec -> ByteString -> ByteString
 generateCode timespec secret = (word32ToDecimal . mask31) word
   where
-    h = doIt timespec secret
+    h = doIt timespec $ upperCase secret
     s = subDigest h
     word = makeWord s
+    upperCase = BS2.map Data.Word8.toUpper
 
 makeWord :: ByteString -> Word32
 makeWord s = runGet getWord32be (fromJust $ fromByteString s) :: Word32
@@ -48,9 +49,6 @@ mask31 :: Word32 -> Word32
 mask31 word = word .&. mask
   where
     mask = toEnum 2147483647 :: Word32
-
-extractDecoder :: Decoder Word32 -> Word32
-extractDecoder (Done _ _ a) = a  -- TODO handle failure cases
 
 lastNibble :: ByteString -> Int
 lastNibble bs = fromEnum $ end .&. mask
