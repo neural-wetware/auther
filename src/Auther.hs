@@ -63,4 +63,4 @@ main :: IO ()
 main = do
   timespec <- getTime Realtime
   (secret:_) <- getArgs
-  print $ generateCode timespec secret
+  print $ fromJust $ generateCode timespec secret

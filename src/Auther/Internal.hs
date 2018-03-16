@@ -21,13 +21,12 @@ import System.Posix.Env.ByteString
 import Data.ByteString.Conversion
 import qualified Codec.Binary.Base32 as B32 (decode)
 
-generateCode :: TimeSpec -> ByteString -> ByteString
-generateCode timespec secret = (word32ToDecimal . mask31) word
-  where
-    h = doIt timespec bsec
-    bsec = fromJust $ secretToBin secret -- pass maybe up stack from here
-    s = subDigest h
-    word = makeWord s
+generateCode :: TimeSpec -> ByteString -> Maybe ByteString
+generateCode timespec secret = do
+  bsec <- secretToBin secret
+  let h = doIt timespec bsec
+  let word = (makeWord . subDigest) h
+  return $ (word32ToDecimal . mask31) word
 
 makeWord :: ByteString -> Word32
 makeWord s = runGet getWord32be (fromJust $ fromByteString s) :: Word32
