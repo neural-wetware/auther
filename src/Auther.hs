@@ -41,21 +41,9 @@ module Main where
 --      return str_pad($value % $modulo, $this->_codeLength, '0', STR_PAD_LEFT);
 --  }
 
-import Data.Binary as Bin
-import Data.Binary.Get
-import Data.ByteArray
-import Data.ByteString.Char8 as BS
-import qualified Data.ByteString.Lazy as LBS
-import Data.ByteString as BS2
 import System.Clock
-import Crypto.Hash
-import Crypto.Hash.Algorithms
-import Crypto.MAC.HMAC
-import Data.Array as A
 import Control.Monad
-import Data.Char
 import Data.Maybe
-import Data.Bits
 import System.Posix.Env.ByteString
 import Auther.Internal
 

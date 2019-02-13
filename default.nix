@@ -9,20 +9,25 @@ let
       src = ./.;
       isLibrary = false;
       isExecutable = true;
+
+      buildTools = [ cabal-install ];
+
       executableHaskellDepends = [ base ];
+
       buildDepends = [ hspec byteable ];
+
       libraryHaskellDepends = [
-	      bytestring
-	      cryptonite
-	      dataenc
-	      binary
-	      memory
-	      clock
-	      array
-	      vector
-	      unix
-	      word8
-	      bytestring-conversion
+	bytestring
+	cryptonite
+	dataenc
+	binary
+	memory
+	clock
+	array
+	vector
+	unix
+	word8
+	bytestring-conversion
       ];
       license = stdenv.lib.licenses.bsd3;
     };
