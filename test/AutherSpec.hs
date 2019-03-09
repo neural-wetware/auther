@@ -6,15 +6,13 @@ import Auther.Internal
 import System.Clock
 import Data.ByteString.Char8
 import qualified Data.ByteString as BSW
-import qualified Data.ByteString.Lazy as LBS
-import qualified Data.ByteString.Lazy.Char8 as LBSC
 import Data.Word8
 import Data.Word
 import Data.Maybe
 import Data.Binary.Get -- TODO use lazy equivalent? cereal?
 import Data.Binary (encode)
 import Data.ByteString.Conversion
-import qualified Codec.Binary.Base32 as B32 (decode)
+import qualified Data.ByteString.Base32 as B32 (decode)
 
 main :: IO ()
 main = hspec spec
@@ -56,7 +54,3 @@ spec = do
     describe "timeblock" $ do
         it "does it" $ do
             (timeblock (fromNanoSecs (34359738360000000055))) `shouldBe` (pack "\0\0\0\0DDDD")
-
-    describe "secretToBin" $ do
-        it "does it" $ do
-            (secretToBin $ pack "NBSWY3DPEB3W64TMMQ") `shouldBe` (Just $ pack "hello world")

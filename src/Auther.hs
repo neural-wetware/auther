@@ -43,12 +43,13 @@ module Main where
 
 import System.Clock
 import Control.Monad
-import Data.Maybe
+import Data.Either
 import System.Posix.Env.ByteString
+import Data.ByteString.Char8 as BS
 import Auther.Internal
 
 main :: IO ()
 main = do
   timespec <- getTime Realtime
   (secret:_) <- getArgs
-  print $ fromJust $ generateCode timespec secret
+  BS.putStr $ either pack id (generateCode timespec secret)

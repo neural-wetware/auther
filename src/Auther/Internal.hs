@@ -5,7 +5,6 @@ import Data.Binary.Get -- TODO use lazy equivalent? cereal?
 import Data.ByteArray
 import Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy as LBS
-import qualified Data.ByteString.Lazy.Char8 as LBSC
 import Data.ByteString as BS2
 import System.Clock
 import Crypto.Hash
@@ -15,15 +14,16 @@ import Data.Array as A
 import Control.Monad
 import Data.Char
 import Data.Maybe
+import Data.Either
 import Data.Word8
 import Data.Bits
 import System.Posix.Env.ByteString
 import Data.ByteString.Conversion
-import qualified Codec.Binary.Base32 as B32 (decode)
+import qualified Data.ByteString.Base32 as Base32 (decode)
 
-generateCode :: TimeSpec -> ByteString -> Maybe ByteString
+generateCode :: TimeSpec -> ByteString -> Either String ByteString
 generateCode timespec secret = do
-  bsec <- secretToBin secret
+  bsec <- Base32.decode secret
   let h = doIt timespec bsec
   let word = (makeWord . subDigest) h
   return $ (word32ToDecimal . mask31) word
@@ -65,11 +65,6 @@ doIt timespec secret = BS2.pack $ Data.ByteArray.unpack hm
   where 
     message = timeblock timespec
     hm = hmac secret message :: HMAC SHA1
-
-secretToBin :: ByteString -> Maybe ByteString
-secretToBin secret = fmap BS2.pack $ B32.decode (BS.unpack (upperCase secret))
-  where
-    upperCase = BS2.map Data.Word8.toUpper
 
 timeblock :: TimeSpec -> ByteString
 timeblock timespec = padL (toEnum 0) 8 $ LBS.toStrict $ Bin.encode q
