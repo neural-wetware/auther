@@ -4,11 +4,9 @@ import Data.Binary as Bin
 import Data.Binary.Get -- TODO use lazy equivalent? cereal?
 import Data.ByteArray
 import Data.ByteString.Char8 as BS
-import qualified Data.ByteString.Lazy as LBS
 import Data.ByteString as BS2
 import System.Clock
 import Crypto.Hash
-import Crypto.Hash.Algorithms
 import Crypto.MAC.HMAC
 import Data.Array as A
 import Control.Monad
@@ -39,7 +37,7 @@ mm word32 = fromIntegral $ mod word32 1000000
 
 padL :: Word8 -> Int -> ByteString -> ByteString
 padL w n s
-    | BS2.length s < n  = BS2.concat [padding, s]
+    | BS2.length s < n = BS2.concat [padding, s]
     | otherwise        = s
   where
     padding = (BS2.replicate (n - BS2.length s) w)
@@ -67,7 +65,7 @@ doIt timespec secret = BS2.pack $ Data.ByteArray.unpack hm
     hm = hmac secret message :: HMAC SHA1
 
 timeblock :: TimeSpec -> ByteString
-timeblock timespec = padL (toEnum 0) 8 $ LBS.toStrict $ Bin.encode q
+timeblock timespec = padL (toEnum 0) 8 $ toByteString' q
   where
     timestamp = toNanoSecs timespec
     q = quot timestamp 30000000000
