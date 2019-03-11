@@ -2,7 +2,7 @@ module Auther.Internal where
 
 import Data.Binary as Bin
 import Data.Binary.Get -- TODO use lazy equivalent? cereal?
-import Data.ByteArray
+import Data.ByteArray as BA
 import Data.ByteString.Char8 as BS
 import Data.ByteString as BS2
 import System.Clock
@@ -26,8 +26,15 @@ generateCode timespec secret = do
   let word = (makeWord . subDigest) h
   return $ (word32ToDecimal . mask31) word
 
-makeWord :: ByteString -> Word32
+makeWord :: Bytes -> Word32
 makeWord s = runGet getWord32be (fromJust $ fromByteString s) :: Word32
+
+readInt_ :: Bytes -> Int
+readInt_ bs = (byte 0 `shift` 24)
+             .|. (byte 1 `shift` 16)
+             .|. (byte 2 `shift` 8)
+             .|. byte 3
+        where byte n = fromIntegral (BA.index bs n)
 
 word32ToDecimal :: Word32 -> ByteString
 word32ToDecimal word32 = (padL _0 6) . BS.pack . show $ mm word32
@@ -47,22 +54,22 @@ mask31 word = word .&. mask
   where
     mask = toEnum 2147483647 :: Word32
 
-lastNibble :: ByteString -> Int
+lastNibble :: Bytes -> Int
 lastNibble bs = fromEnum $ end .&. mask
   where
-    end = fromIntegral $ (BS2.last bs)
+    end = fromIntegral $ BA.index bs 39 -- change to length - 1 
     mask = toEnum 15 :: Word8
 
-subDigest :: ByteString -> ByteString
-subDigest dig = BS.take 4 $ BS.drop offset dig
+subDigest :: Bytes -> Bytes
+subDigest dig = BA.take 4 $ BA.drop offset dig
   where
     offset = lastNibble dig
 
-doIt :: TimeSpec -> ByteString -> BS.ByteString
-doIt timespec secret = BS2.pack $ Data.ByteArray.unpack hm
+doIt :: TimeSpec -> ByteString -> Bytes
+doIt timespec secret = BA.convert hm
   where 
     message = timeblock timespec
-    hm = hmac secret message :: HMAC SHA1
+    hm = hmac secret message
 
 timeblock :: TimeSpec -> ByteString
 timeblock timespec = padL (toEnum 0) 8 $ toByteString' q
