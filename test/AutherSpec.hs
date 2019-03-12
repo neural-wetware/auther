@@ -8,7 +8,9 @@ import Data.ByteString.Char8
 import qualified Data.ByteString as BSW
 import Data.Word8
 import Data.Word
+import Data.Char (ord)
 import Data.Maybe
+import qualified Data.ByteArray as BA
 import Data.Binary.Get -- TODO use lazy equivalent? cereal?
 import Data.Binary (encode)
 import Data.ByteString.Conversion
@@ -43,9 +45,9 @@ spec = do
         it "sets first bit to zero" $ do
             (mask31 (toEnum 3147483648)) `shouldBe` (toEnum 1000000000)
 
-    describe "makeWord" $ do
-        it "converts 4 byte ByteString to Word32" $ do
-            (makeWord (pack "aaaa")) `shouldBe` (toEnum 1633771873 :: Word32)
+    describe "bytesToWord32" $ do
+        it "converts 4 byte ByteArray to Word32" $ do
+            (bytesToWord32 $ BA.pack (Prelude.replicate 4 (fromIntegral $ ord 'a'))) `shouldBe` (toEnum 1633771873 :: Word32)
 
     describe "doIt" $ do
         it "does it" $ do
