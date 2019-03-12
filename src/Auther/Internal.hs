@@ -15,6 +15,7 @@ import Data.Maybe
 import Data.Either
 import Data.Word8
 import Data.Bits
+import Data.Int
 import System.Posix.Env.ByteString
 import Data.ByteString.Conversion
 import qualified Data.ByteString.Base32 as Base32 (decode)
@@ -23,18 +24,18 @@ generateCode :: TimeSpec -> ByteString -> Either String ByteString
 generateCode timespec secret = do
   bsec <- Base32.decode secret
   let h = doIt timespec bsec
-  let word = (makeWord . subDigest) h
+  let word = (bytesToWord32 . subDigest) h
   return $ (word32ToDecimal . mask31) word
 
-makeWord :: Bytes -> Word32
-makeWord s = runGet getWord32be (fromJust $ fromByteString s) :: Word32
+--makeWord :: Bytes -> Word32
+--makeWord s = runGet getWord32be (fromJust $ fromByteString s) :: Word32
 
-readInt_ :: Bytes -> Int
-readInt_ bs = (byte 0 `shift` 24)
+bytesToWord32 :: Bytes -> Word32
+bytesToWord32 bs = (byte 0 `shift` 24)
              .|. (byte 1 `shift` 16)
              .|. (byte 2 `shift` 8)
              .|. byte 3
-        where byte n = fromIntegral (BA.index bs n)
+        where byte n = fromIntegral $ BA.index bs n
 
 word32ToDecimal :: Word32 -> ByteString
 word32ToDecimal word32 = (padL _0 6) . BS.pack . show $ mm word32
@@ -69,7 +70,7 @@ doIt :: TimeSpec -> ByteString -> Bytes
 doIt timespec secret = BA.convert hm
   where 
     message = timeblock timespec
-    hm = hmac secret message
+    hm = hmac secret message :: (HMAC SHA1)
 
 timeblock :: TimeSpec -> ByteString
 timeblock timespec = padL (toEnum 0) 8 $ toByteString' q
