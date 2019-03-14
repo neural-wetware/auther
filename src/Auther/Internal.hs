@@ -25,7 +25,7 @@ generateCode timespec secret = do
   bsec <- Base32.decode secret
   let h = doIt timespec bsec
   let word = (bytesToWord32 . subDigest) h
-  return $ (word32ToDecimal . mask31) word
+  return $ BS2.pack $ (word32ToDecimal . mask31) word
 
 --makeWord :: Bytes -> Word32
 --makeWord s = runGet getWord32be (fromJust $ fromByteString s) :: Word32
@@ -40,18 +40,18 @@ bytesToWord32 bs = (byte 0 `shift` 24)
 intToWord8s :: (Integral a, Bits a) => a -> [Word8] -- tupe instead?
 intToWord8s int = Prelude.map fromIntegral [int `shiftR` 24, int `shiftR` 16, int `shiftR` 8, int]
 
-word32ToDecimal :: Word32 -> ByteString
-word32ToDecimal word32 = (padL _0 6) . BS.pack . show $ mm word32
+word32ToDecimal :: Word32 -> [Word8]
+word32ToDecimal word32 = (padL _0 6) $ intToWord8s word32
 
 mm :: Word32 -> Int
 mm word32 = fromIntegral $ mod word32 1000000
 
-padL :: Word8 -> Int -> ByteString -> ByteString
+padL :: Word8 -> Int -> [Word8] -> [Word8]
 padL w n s
-    | BS2.length s < n = BS2.concat [padding, s]
+    | Prelude.length s < n = padding ++ s
     | otherwise        = s
   where
-    padding = (BS2.replicate (n - BS2.length s) w)
+    padding = Prelude.replicate (n - Prelude.length s) w
 
 mask31 :: Word32 -> Word32
 mask31 word = word .&. mask
@@ -75,8 +75,8 @@ doIt timespec secret = BA.convert hm
     message = timeblock timespec
     hm = hmac secret message :: (HMAC SHA1)
 
-timeblock :: TimeSpec -> ByteString
-timeblock timespec = padL (toEnum 0) 8 $ toByteString' q
+timeblock :: TimeSpec -> [Word8]
+timeblock timespec = padL (toEnum 0) 8 $ intToWord8s q
   where
     timestamp = toNanoSecs timespec
     q = quot timestamp 30000000000
