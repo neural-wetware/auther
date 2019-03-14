@@ -37,6 +37,9 @@ bytesToWord32 bs = (byte 0 `shift` 24)
              .|. byte 3
         where byte n = fromIntegral $ BA.index bs n
 
+intToWord8s :: (Integral a, Bits a) => a -> [Word8] -- tupe instead?
+intToWord8s int = Prelude.map fromIntegral [int `shiftR` 24, int `shiftR` 16, int `shiftR` 8, int]
+
 word32ToDecimal :: Word32 -> ByteString
 word32ToDecimal word32 = (padL _0 6) . BS.pack . show $ mm word32
 
