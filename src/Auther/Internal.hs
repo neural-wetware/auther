@@ -31,10 +31,7 @@ generateCode timespec secret = do
 --makeWord s = runGet getWord32be (fromJust $ fromByteString s) :: Word32
 
 bytesToWord32 :: Bytes -> Word32
-bytesToWord32 bs = (byte 0 `shift` 24)
-             .|. (byte 1 `shift` 16)
-             .|. (byte 2 `shift` 8)
-             .|. byte 3
+bytesToWord32 bs = (byte 0 `shift` 24) .|. (byte 1 `shift` 16) .|. (byte 2 `shift` 8) .|. byte 3
         where byte n = fromIntegral $ BA.index bs n
 
 intToWord8s :: (Integral a, Bits a) => a -> [Word8] -- tupe instead?
@@ -43,15 +40,16 @@ intToWord8s int = Prelude.map fromIntegral [int `shiftR` 24, int `shiftR` 16, in
 word32ToDecimal :: Word32 -> [Word8]
 word32ToDecimal word32 = (padL _0 6) $ intToWord8s word32
 
-mm :: Word32 -> Int
-mm word32 = fromIntegral $ mod word32 1000000
+--mm :: Word32 -> Int
+--mm word32 = fromIntegral $ mod word32 1000000
 
 padL :: Word8 -> Int -> [Word8] -> [Word8]
-padL w n s
-    | Prelude.length s < n = padding ++ s
-    | otherwise        = s
+padL w n words
+    | len < n = padding ++ words
+    | otherwise = words
   where
-    padding = Prelude.replicate (n - Prelude.length s) w
+    padding = Prelude.replicate (n - len) w
+    len = Prelude.length words
 
 mask31 :: Word32 -> Word32
 mask31 word = word .&. mask
@@ -75,8 +73,8 @@ doIt timespec secret = BA.convert hm
     message = timeblock timespec
     hm = hmac secret message :: (HMAC SHA1)
 
-timeblock :: TimeSpec -> [Word8]
-timeblock timespec = padL (toEnum 0) 8 $ intToWord8s q
+timeblock :: TimeSpec -> ByteString
+timeblock timespec = BS2.pack $ padL (toEnum 0) 8 $ intToWord8s q
   where
     timestamp = toNanoSecs timespec
     q = quot timestamp 30000000000
@@ -87,3 +85,6 @@ timeblock timespec = padL (toEnum 0) 8 $ intToWord8s q
 -- * code length
 -- * secret length?
 -- install Sophos Authenticator and copy options?
+
+--mm :: Word32 -> Int
+--mm word32 = fromIntegral $ mod word32 1000000
