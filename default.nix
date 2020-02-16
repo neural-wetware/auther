@@ -1,5 +1,8 @@
 let
-  pkgs = import <nixpkgs> {};
+  pkgs = import (builtins.fetchTarball {
+    url = https://releases.nixos.org/nixos/19.09/nixos-19.09.2079.8731aaaf8b3/nixexprs.tar.xz;
+    sha256 = "0mwmq6cypiwnl4igqbd0hwd0b0grxn6s2s14qbnap2biwh7vpizl";
+  }) {};
 
   # https://github.com/NixOS/nixpkgs/issues/24647
   my-base32-bytestring = pkgs.haskellPackages.base32-bytestring.overrideAttrs (attr: {
@@ -27,20 +30,20 @@ let
       buildDepends = [ hspec byteable ];
 
       libraryHaskellDepends = [
-	my-base32-bytestring
-	bytestring
-	cryptonite
-	binary
-	memory
-	clock
-	array
-	vector
-	unix
-	word8
-	bytestring-conversion
+        my-base32-bytestring
+        bytestring
+        cryptonite
+        binary
+        memory
+        clock
+        array
+        vector
+        unix
+        word8
+        bytestring-conversion
       ];
 
-      license = stdenv.lib.licenses.bsd3;
+      license = pkgs.stdenv.lib.licenses.bsd3;
     };
 in
   auther
