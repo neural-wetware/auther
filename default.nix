@@ -15,37 +15,34 @@ let
   });
 
   srcFilter = path: type: pkgs.lib.cleanSourceFilter path type && baseNameOf path != "default.nix";
-
-  auther =
-    with pkgs.haskellPackages;
-    mkDerivation {
-      pname = "auther";
-      version = "1.0";
-      src = pkgs.nix-gitignore.gitignoreFilterSource srcFilter []  ./.;
-      isLibrary = false;
-      isExecutable = true;
-
-      buildTools = [ cabal-install ];
-
-      executableHaskellDepends = [ base ];
-
-      buildDepends = [ hspec byteable ];
-
-      libraryHaskellDepends = [
-        my-base32-bytestring
-        bytestring
-        cryptonite
-        binary
-        memory
-        clock
-        array
-        vector
-        unix
-        word8
-        bytestring-conversion
-      ];
-
-      license = pkgs.stdenv.lib.licenses.bsd3;
-    };
 in
-  auther
+  with pkgs.haskellPackages;
+  mkDerivation {
+    pname = "auther";
+    version = "1.1";
+    src = pkgs.nix-gitignore.gitignoreFilterSource srcFilter []  ./.;
+    isLibrary = false;
+    isExecutable = true;
+
+    buildTools = [ cabal-install ];
+
+    executableHaskellDepends = [ base ];
+
+    buildDepends = [ hspec byteable ];
+
+    libraryHaskellDepends = [
+      my-base32-bytestring
+      bytestring
+      cryptonite
+      binary
+      memory
+      clock
+      array
+      vector
+      unix
+      word8
+      bytestring-conversion
+    ];
+
+    license = pkgs.stdenv.lib.licenses.bsd3;
+  }
