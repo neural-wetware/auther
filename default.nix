@@ -14,12 +14,14 @@ let
      };
   });
 
+  srcFilter = path: type: pkgs.lib.cleanSourceFilter path type && baseNameOf path != "default.nix";
+
   auther =
     with pkgs.haskellPackages;
     mkDerivation {
       pname = "auther";
       version = "1.0";
-      src = ./.;
+      src = pkgs.nix-gitignore.gitignoreFilterSource srcFilter []  ./.;
       isLibrary = false;
       isExecutable = true;
 
