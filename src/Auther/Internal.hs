@@ -15,15 +15,25 @@ import Control.Monad
 import Data.Char
 import Data.Maybe
 import Data.Either
-import Data.Word8
+import Data.Word
 import Data.Bits
 import System.Posix.Env.ByteString
 import Data.ByteString.Conversion
-import qualified Data.ByteString.Base32 as Base32 (decode)
+import Data.Encoding (Encoding(..), encode, decode)
+
+-- define the RFC4648 Base32 encoding
+base32 :: Encoding
+base32 = base32Rfc4648
+
+decodeSecret :: String -> IO BS.ByteString
+decodeSecret secret =
+  case decode base32 (BS.pack secret) of
+    Left err -> fail ("Base32 decode failed: " ++ err)
+    Right bsec -> return bsec
 
 generateCode :: TimeSpec -> ByteString -> Either String ByteString
 generateCode timespec secret = do
-  bsec <- Base32.decode secret
+  bsec <- decodeSecret secret
   let h = doIt timespec bsec
   let word = (makeWord . subDigest) h
   return $ (word32ToDecimal . mask31) word
@@ -37,7 +47,7 @@ word32ToDecimal word32 = (padL _0 6) . BS.pack . show $ mm word32
 mm :: Word32 -> Int
 mm word32 = fromIntegral $ mod word32 1000000
 
-padL :: Word8 -> Int -> ByteString -> ByteString
+padL :: Word -> Int -> ByteString -> ByteString
 padL w n s
     | BS2.length s < n  = BS2.concat [padding, s]
     | otherwise        = s
@@ -53,7 +63,7 @@ lastNibble :: ByteString -> Int
 lastNibble bs = fromEnum $ end .&. mask
   where
     end = fromIntegral $ (BS2.last bs)
-    mask = toEnum 15 :: Word8
+    mask = toEnum 15 :: Word
 
 subDigest :: ByteString -> ByteString
 subDigest dig = BS.take 4 $ BS.drop offset dig

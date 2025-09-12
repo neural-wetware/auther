@@ -6,7 +6,6 @@ import Auther.Internal
 import System.Clock
 import Data.ByteString.Char8
 import qualified Data.ByteString as BSW
-import Data.Word8
 import Data.Word
 import Data.Maybe
 import Data.Binary.Get -- TODO use lazy equivalent? cereal?

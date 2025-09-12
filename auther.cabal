@@ -12,15 +12,13 @@ executable auther
   
   build-depends:       base
                      , bytestring
-                     , base32-bytestring
+                     , data-encoding
                      , cryptonite
                      , binary
-                     , memory
                      , clock
                      , array
                      , vector
                      , unix
-                     , word8
                      , bytestring-conversion
   
   hs-source-dirs:      src
@@ -31,8 +29,7 @@ test-suite hspec
   build-depends:       hspec
                      , base
                      , bytestring
-                     , base32-bytestring
-                     , word8
+                     , data-encoding
                      , auther
                      , binary
                      , bytestring-conversion
@@ -47,11 +44,9 @@ library
   exposed-modules:     Auther.Internal
   build-depends:       base
                      , bytestring
-                     , base32-bytestring
-                     , word8
+                     , data-encoding
                      , cryptonite
                      , binary
-                     , memory
                      , clock
                      , array
                      , vector
