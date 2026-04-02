@@ -19,17 +19,13 @@ import Data.Word
 import Data.Bits
 import System.Posix.Env.ByteString
 import Data.ByteString.Conversion
-import Data.Encoding (Encoding(..), encode, decode)
+import qualified Data.ByteString.Base32 as Base32
 
--- define the RFC4648 Base32 encoding
-base32 :: Encoding
-base32 = base32Rfc4648
-
-decodeSecret :: String -> IO BS.ByteString
+decodeSecret :: ByteString -> Either String BS.ByteString
 decodeSecret secret =
-  case decode base32 (BS.pack secret) of
-    Left err -> fail ("Base32 decode failed: " ++ err)
-    Right bsec -> return bsec
+  case Base32.decodeBase32Unpadded secret of
+    Left err -> Left ("Base32 decode failed: " ++ show err)
+    Right bsec -> Right bsec
 
 generateCode :: TimeSpec -> ByteString -> Either String ByteString
 generateCode timespec secret = do
@@ -42,12 +38,12 @@ makeWord :: ByteString -> Word32
 makeWord s = runGet getWord32be (fromJust $ fromByteString s) :: Word32
 
 word32ToDecimal :: Word32 -> ByteString
-word32ToDecimal word32 = (padL _0 6) . BS.pack . show $ mm word32
+word32ToDecimal word32 = (padL 48 6) . BS.pack . show $ mm word32
 
 mm :: Word32 -> Int
 mm word32 = fromIntegral $ mod word32 1000000
 
-padL :: Word -> Int -> ByteString -> ByteString
+padL :: Word8 -> Int -> ByteString -> ByteString
 padL w n s
     | BS2.length s < n  = BS2.concat [padding, s]
     | otherwise        = s

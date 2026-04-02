@@ -11,7 +11,6 @@ import Data.Maybe
 import Data.Binary.Get -- TODO use lazy equivalent? cereal?
 import Data.Binary (encode)
 import Data.ByteString.Conversion
-import qualified Data.ByteString.Base32 as B32 (decode)
 
 main :: IO ()
 main = hspec spec
@@ -36,7 +35,7 @@ spec = do
 
     describe "padL" $ do
         it "adds leading zeros" $ do
-            (padL _0 6 (pack "355")) `shouldBe` (pack "000355")
+            (padL 48 6 (pack "355")) `shouldBe` (pack "000355")
 
     describe "mask31" $ do
         it "sets first bit to zero" $ do

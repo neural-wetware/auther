@@ -12,8 +12,9 @@ executable auther
   
   build-depends:       base
                      , bytestring
-                     , data-encoding
+                     , base32
                      , cryptonite
+                     , memory
                      , binary
                      , clock
                      , array
@@ -29,7 +30,7 @@ test-suite hspec
   build-depends:       hspec
                      , base
                      , bytestring
-                     , data-encoding
+                     , base32
                      , auther
                      , binary
                      , bytestring-conversion
@@ -44,8 +45,9 @@ library
   exposed-modules:     Auther.Internal
   build-depends:       base
                      , bytestring
-                     , data-encoding
+                     , base32
                      , cryptonite
+                     , memory
                      , binary
                      , clock
                      , array
